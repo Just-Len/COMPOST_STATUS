@@ -17,11 +17,11 @@ const int BAUD_RATE = 115200;
 const int PIN_NUMBER_LED_BUILTIN = 2;
 const int PIN_NUMBER_PH_SENSOR = 35;
 const int PIN_NUMBER_DHT11 = 26;
-const int lcdColumns = 16;
-const int lcdRows = 2;
+const int LCD_COLUMNS = 16;
+const int LCD_ROWS = 2;
 
 const String NETWORK_SSID = "Sensores Compostera";
-LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
+LiquidCrystal_I2C lcd(39, LCD_COLUMNS, LCD_ROWS);
 
 NetworkServer server(80);
 
@@ -53,13 +53,15 @@ void loop()
   int humidity, temperature;
   float ph = read_ph(PIN_NUMBER_PH_SENSOR);
   int resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
-    // lcd.clear() Clear the display
+
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Hum: ");
   lcd.print(humidity);
   lcd.print("Temp: ");
   lcd.print(temperature);
+  lcd.print ("°C");
+
   lcd.setCursor(0,1);
   lcd.print("pH: ");
   lcd.print(ph);

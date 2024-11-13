@@ -1,4 +1,4 @@
-const char *index_page = R"(
+const char *index_page = R"_(
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -23,15 +23,15 @@ const char *index_page = R"(
     <input type="file" id="fileInput" accept=".csv">
     <h3>Graficas</h3>
     <div class="buttons">
-      <button onclick=\"updateChart('Humedad')\">Humedad</button>
-      <button onclick=\"updateChart('Acidez')\">Acidez</button>
-      <button onclick=\"updateChart('Temperatura')\">Temperatura</button>
+      <button onclick="updateChart('Humedad')">Humedad</button>
+      <button onclick="updateChart('Acidez')">Acidez</button>
+      <button onclick="updateChart('Temperatura')">Temperatura</button>
     </div>
     <h3>Últimas Mediciones</h3>
     <p>Humedad: <span id="humidityValue">Cargando medicion</span></p>
     <p>Acidez (pH): <span id="phValue">Cargando medicion</span></p>
     <p>Temperatura: <span id="temperatureValue">Cargando medicion</span></p>
-    <button type="button" onclick=\"loadSensorData()\">Cargar Datos del Sensor</button>
+    <button type="button" onclick="loadSensorData()">Cargar Datos del Sensor</button>
 
     <div class="form-container">
       <h3>Agregar Nueva Medicción</h3>
@@ -41,11 +41,11 @@ const char *index_page = R"(
         <label>Acidez: <input type="number" id="newAcidez"></label><br><br>
         <label>Temperatura: <input type="number" id="newTemperatura"></label><br><br>
         <label>Contenedor: <input type="number" id="newContenedor"></label><br><br>
-        <button type="button" onclick=\"addNewMeasurement()\">Agregar</button>
+        <button type="button" onclick="addNewMeasurement()">Agregar</button>
       </form>
     </div>
     <br>
-    <button onclick=\"downloadCSV()\">Descargar CSV</button>
+    <button onclick="downloadCSV()">Descargar CSV</button>
   </div>
   <div class="table-container">
     <table class="styled_table" style="margin-top: 148PX;">
@@ -58,169 +58,8 @@ const char *index_page = R"(
   <div style="margin-top: 148px;"><svg id="lineChart" width="600" height="300"></svg></div>
   <div class="tooltip" id="tooltip"></div>
   <script>
-    let csvData = [];
-    const tooltip = document.getElementById('tooltip');
-    document.getElementById('fileInput').addEventListener('change', handleFile, false);
-    function handleFile(event) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const rows = e.target.result.split('\n').filter(row => row.trim() !== '');
-        csvData = rows.slice(1).map(row => row.split(','));
-        
-        const invalidRows = csvData.filter(row => row.length !== 5 || row.some(cell => cell.trim() === ''));
-        if (invalidRows.length > 0) {
-          const proceed = confirm(`El archivo contiene ${invalidRows.length} filas con datos faltantes. ¿Omitir filas erróneas?`);
-          if (!proceed) return;
-          csvData = csvData.filter(row => row.length === 5 && row.every(cell => cell.trim() !== ''));
-        }
-        
-        displayData(csvData);
-      };
-      reader.readAsText(file);
-    }
-    function displayData(data) {
-      const tableBody = document.getElementById('dataBody');
-      tableBody.innerHTML = '';
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell.trim();
-          tr.appendChild(td);
-        });
-        tableBody.appendChild(tr);
-      });
-    }
-    function updateChart(column) {
-      if (csvData.length === 0) return;
-      const columnMap = { 'Humedad': 1, 'Acidez': 2, 'Temperatura': 3, 'Contenedor': 4 };
-      const columnIndex = columnMap[column];
-      const labels = csvData.map(row => row[0]);
-      const data = csvData.map(row => parseFloat(row[columnIndex]));
-      const contenedorData = csvData.map(row => row[4]); 
-      const svg = document.getElementById('lineChart');
-      svg.innerHTML = '';
-      const maxVal = Math.max(...data);
-      const minVal = Math.min(...data);
-      const scaleX = (svg.width.baseVal.value - 100) / (data.length - 1);
-      const scaleY = (svg.height.baseVal.value - 100) / (maxVal - minVal);
-      const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      xAxis.setAttribute("x1", 50);
-      xAxis.setAttribute("y1", 250);
-      xAxis.setAttribute("x2", 550);
-      xAxis.setAttribute("y2", 250);
-      xAxis.setAttribute("stroke", "black");
-      svg.appendChild(xAxis);
-      const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      yAxis.setAttribute("x1", 50);
-      yAxis.setAttribute("y1", 50);
-      yAxis.setAttribute("x2", 50);
-      yAxis.setAttribute("y2", 250);
-      yAxis.setAttribute("stroke", "black");
-      svg.appendChild(yAxis);
-      labels.forEach((label, i) => {
-        const x = 50 + i * scaleX;
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", x);
-        text.setAttribute("y", 270);
-        text.setAttribute("font-size", "10px");
-        text.setAttribute("text-anchor", "middle");
-        text.textContent = label;
-        svg.appendChild(text);
-      });
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      let pathData = '';
-      data.forEach((value, i) => {
-        const x = 50 + i * scaleX;
-        const y = 250 - (value - minVal) * scaleY;
-        if (i === 0) {
-          pathData = `M${x},${y}`;
-        } else {
-          pathData += ` L${x},${y}`;
-        }
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", x);
-        circle.setAttribute("cy", y);
-        circle.setAttribute("r", 4);
-        circle.setAttribute("fill", "#83072D");
-        svg.appendChild(circle);
-        const textData = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        textData.setAttribute("x", x);
-        textData.setAttribute("y", y - 10); 
-        textData.setAttribute("font-size", "10px");
-        textData.setAttribute("text-anchor", "middle");
-        textData.textContent = value.toFixed(2);
-        svg.appendChild(textData);
-        circle.addEventListener('mouseover', function(event) {
-          tooltip.style.display = 'block';
-          tooltip.textContent = `${column}: ${value.toFixed(2)} (Fecha: ${labels[i]}) - Contenedor: ${contenedorData[i]}`;
-          tooltip.style.left = `${event.pageX + 10}px`;
-          tooltip.style.top = `${event.pageY - 30}px`;
-        });
-        circle.addEventListener('mouseout', function() {
-          tooltip.style.display = 'none';
-        });
-      });
-      path.setAttribute("d", pathData);
-      path.setAttribute("stroke", "#83072D");
-      path.setAttribute("fill", "none");
-      svg.appendChild(path);
-    }
-    function addNewMeasurement() {
-      const fecha = document.getElementById('newFecha').value;
-      let humedad = document.getElementById('newHumedad').value;
-      const acidez = document.getElementById('newAcidez').value;
-      const temperatura = document.getElementById('newTemperatura').value;
-      const contenedor = document.getElementById('newContenedor').value;
-      if (!fecha || !humedad || !acidez || !temperatura || !contenedor) {
-        alert('Por favor complete todos los campos. O cheque que esten validos');
-        return;
-      }
-      const newRow = [fecha, humedad+"%", acidez+"%", temperatura, contenedor];
-      csvData.push(newRow);
-      displayData(csvData);
-      alert("Medición agregada correctamente.");
-    }
-    function downloadCSV() {
-      const csvContent = "Fecha,Humedad,Acidez,Temperatura,Contenedor\n" + csvData.map(row => row.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      if (link.download !== undefined) {
-        link.href = URL.createObjectURL(blob);
-        link.download = 'datos_compostera.csv';
-        link.click();
-      }
-    }
-    function getMeasurements() {
-    fetch('/measurements')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('humidityValue').textContent = `${data.humidity}%`;
-        document.getElementById('phValue').textContent = data.pH;
-        document.getElementById('temperatureValue').textContent = `${data.temperature}°C`;
-      })
-      .catch(error => console.error('Error fetching data:', error));
-    }
-    function loadSensorData() {
-  fetch('/measurements')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('newFecha').value = new Date().toLocaleDateString('es-ES');
-      document.getElementById('newHumedad').value = data.humidity || '';
-      document.getElementById('newAcidez').value = data.pH || '';
-      document.getElementById('newTemperatura').value = data.temperature || '';
-      document.getElementById('newContenedor').value = ''; 
-    })
-    .catch(error => {
-      alert('Error al cargar los datos del sensor.');
-      console.error('Error fetching data:', error);
-    });
-}
-
-    setInterval(getMeasurements, 5000);
-    window.onload = getMeasurements;
+  let csvData=[],tooltip=document.getElementById("tooltip");function handleFile(e){var e=e.target.files[0],t=new FileReader;t.onload=function(e){e=e.target.result.split("\n").filter(e=>""!==e.trim()),e=(csvData=e.slice(1).map(e=>e.split(","))).filter(e=>5!==e.length||e.some(e=>""===e.trim()));if(0<e.length){if(!confirm(`El archivo contiene ${e.length} filas con datos faltantes. ¿Omitir filas erróneas?`))return;csvData=csvData.filter(e=>5===e.length&&e.every(e=>""!==e.trim()))}displayData(csvData)},t.readAsText(e)}function displayData(e){let t=document.getElementById("dataBody");t.innerHTML="",e.forEach(e=>{let n=document.createElement("tr");e.forEach(e=>{var t=document.createElement("td");t.textContent=e.trim(),n.appendChild(t)}),t.appendChild(n)})}function updateChart(p){if(0!==csvData.length){let t={Humedad:1,Acidez:2,Temperatura:3,Contenedor:4}[p],l=csvData.map(e=>e[0]);var e=csvData.map(e=>parseFloat(e[t]));let i=csvData.map(e=>e[4]),d=document.getElementById("lineChart");d.innerHTML="";var n=Math.max(...e);let s=Math.min(...e),c=(d.width.baseVal.value-100)/(e.length-1),u=(d.height.baseVal.value-100)/(n-s);n=document.createElementNS("http://www.w3.org/2000/svg","line"),n=(n.setAttribute("x1",50),n.setAttribute("y1",250),n.setAttribute("x2",550),n.setAttribute("y2",250),n.setAttribute("stroke","black"),d.appendChild(n),document.createElementNS("http://www.w3.org/2000/svg","line")),n=(n.setAttribute("x1",50),n.setAttribute("y1",50),n.setAttribute("x2",50),n.setAttribute("y2",250),n.setAttribute("stroke","black"),d.appendChild(n),l.forEach((e,t)=>{var t=50+t*c,n=document.createElementNS("http://www.w3.org/2000/svg","text");n.setAttribute("x",t),n.setAttribute("y",270),n.setAttribute("font-size","10px"),n.setAttribute("text-anchor","middle"),n.textContent=e,d.appendChild(n)}),document.createElementNS("http://www.w3.org/2000/svg","path"));let m="";e.forEach((t,n)=>{var e=50+n*c,a=250-(t-s)*u,r=(0===n?m=`M${e},`+a:m+=` L${e},`+a,document.createElementNS("http://www.w3.org/2000/svg","circle")),o=(r.setAttribute("cx",e),r.setAttribute("cy",a),r.setAttribute("r",4),r.setAttribute("fill","#83072D"),d.appendChild(r),document.createElementNS("http://www.w3.org/2000/svg","text"));o.setAttribute("x",e),o.setAttribute("y",a-10),o.setAttribute("font-size","10px"),o.setAttribute("text-anchor","middle"),o.textContent=t.toFixed(2),d.appendChild(o),r.addEventListener("mouseover",function(e){tooltip.style.display="block",tooltip.textContent=`${p}: ${t.toFixed(2)} (Fecha: ${l[n]}) - Contenedor: `+i[n],tooltip.style.left=e.pageX+10+"px",tooltip.style.top=e.pageY-30+"px"}),r.addEventListener("mouseout",function(){tooltip.style.display="none"})}),n.setAttribute("d",m),n.setAttribute("stroke","#83072D"),n.setAttribute("fill","none"),d.appendChild(n)}}function addNewMeasurement(){var e=elementValue("newFecha"),t=elementValue("newHumedad"),n=elementValue("newAcidez"),a=elementValue("newTemperatura"),r=elementValue("newContenedor");e&&t&&n&&a&&r?(e=[e,t+"%",n+"%",a,r],csvData.push(e),displayData(csvData),alert("Medición agregada correctamente.")):alert("Por favor complete todos los campos. O cheque que esten validos")}function downloadCSV(){var e="Fecha,Humedad,Acidez,Temperatura,Contenedor\n"+csvData.map(e=>e.join(",")).join("\n"),e=new Blob([e],{type:"text/csv;charset=utf-8;"}),t=document.createElement("a");void 0!==t.download&&(t.href=URL.createObjectURL(e),t.download="datos_compostera.csv",t.click())}function getMeasurements(){fetch("/measurements").then(e=>e.json()).then(e=>{document.getElementById("humidityValue").textContent=e.humidity+"%",document.getElementById("phValue").textContent=e.pH,document.getElementById("temperatureValue").textContent=e.temperature+"°C"}).catch(e=>console.error("Error fetching data:",e))}function loadSensorData(){fetch("/measurements").then(e=>e.json()).then(e=>{document.getElementById("newFecha").value=(new Date).toLocaleDateString("es-ES"),document.getElementById("newHumedad").value=e.humidity||"",document.getElementById("newAcidez").value=e.pH||"",document.getElementById("newTemperatura").value=e.temperature||"",document.getElementById("newContenedor").value=""}).catch(e=>{alert("Error al cargar los datos del sensor."),console.error("Error fetching data:",e)})}function elementValue(e){return document.getElementById(e).value}document.getElementById("fileInput").addEventListener("change",handleFile,!1),setInterval(getMeasurements,5e3),window.onload=getMeasurements;
   </script>
 </body>
 </html>
-)";
+)_";
