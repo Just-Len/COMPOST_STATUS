@@ -58,13 +58,13 @@ void setup()
 
 void loop()
 {
-  i32 humidity, temperature;
+  float humidity, temperature;
   float ph = read_ph(PIN_NUMBER_PH_SENSOR);
   u8 resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
 
   Serial.printf("DHT11 read result code: %lld\t\t", resultValue);
-  Serial.printf("Temperature: %d\t\t", temperature);
-  Serial.printf("Humidity: %d\n\n", humidity);
+  Serial.printf("Temperature: %.2f\t\t", temperature);
+  Serial.printf("Humidity: %.2f\n\n", humidity);
 
   lcd.clear();
   lcd.setCursor(0,0);

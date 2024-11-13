@@ -96,15 +96,17 @@ static void startSignal(u8 pinNumber)
  *          Returns 0 if the reading is successful, DHT11::ERROR_TIMEOUT if a timeout occurs,
  *          or DHT11::ERROR_CHECKSUM if a checksum error occurs.
  */
-u8 readTemperatureHumidity(u8 pinNumber, i32 &temperature, i32 &humidity)
+u8 readTemperatureHumidity(u8 pinNumber, float &temperature, float &humidity)
 {
+  const float decimal_part_scale = 256;
+
   u8 data[5];
   u8 error = readRawData(pinNumber, data);
   if (error != 0)
   {
     return error;
   }
-  humidity = data[0];
-  temperature = data[2];
+  humidity = data[0] + (data[1] / decimal_part_scale);
+  temperature = data[2] + (data[3] / decimal_part_scale);
   return 0;
 }
