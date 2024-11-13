@@ -51,7 +51,7 @@ void setup()
     }
 
   // SSID, password, channel, hide SSID
-  } while (!WiFi.softAP(NETWORK_SSID, emptyString, 1, true));
+  } while (!WiFi.softAP(NETWORK_SSID, emptyString, 1, false));
 
   Serial.println("Access Point creation succeeded.");
 }
