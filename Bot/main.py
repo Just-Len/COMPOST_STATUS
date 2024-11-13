@@ -2,6 +2,8 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import json
 import os
+import Adafruit_DHT
+
 from dotenv import load_dotenv
 load_dotenv()
 
