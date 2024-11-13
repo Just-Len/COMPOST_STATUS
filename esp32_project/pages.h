@@ -52,7 +52,7 @@ const char *index_page = R"(
     </table>
 
   </div>
-  <div><svg id="lineChart" width="600" height="300"></svg></div>
+  <div style="margin-top: 148px;"><svg id="lineChart" width="600" height="300"></svg></div>
 
   <div class="tooltip" id="tooltip"></div>
 
