@@ -1,6 +1,7 @@
 #include <NetworkClient.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
+#include <LiquidCrystal_I2C.h>
 
 // https://docs.arduino.cc/built-in-examples/basics/ReadAnalogVoltage/
 // https://www.arduino.cc/reference/tr/language/functions/analog-io/analogread/
@@ -14,10 +15,13 @@ const int ANALOG_READ_MAX_VALUE = 1023;
 
 const int BAUD_RATE = 115200;
 const int PIN_NUMBER_LED_BUILTIN = 2;
-const int PIN_NUMBER_PH_SENSOR = 26;
-const int PIN_NUMBER_DHT11 = 25;
+const int PIN_NUMBER_PH_SENSOR = 35;
+const int PIN_NUMBER_DHT11 = 26;
+const int lcdColumns = 16;
+const int lcdRows = 2;
 
 const String NETWORK_SSID = "Sensores Compostera";
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 NetworkServer server(80);
 
@@ -26,6 +30,8 @@ void setup()
   pinMode(PIN_NUMBER_PH_SENSOR, INPUT);
   pinMode(PIN_NUMBER_LED_BUILTIN, OUTPUT);
   Serial.begin(BAUD_RATE);
+  lcd.init();
+  lcd.backlight();
 
   Serial.println("Attempting to create Access Point.");
 
@@ -47,7 +53,17 @@ void loop()
   int humidity, temperature;
   float ph = read_ph(PIN_NUMBER_PH_SENSOR);
   int resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
-  
+    // lcd.clear() Clear the display
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Hum: ");
+  lcd.print(humidity);
+  lcd.print("Temp: ");
+  lcd.print(temperature);
+  lcd.setCursor(0,1);
+  lcd.print("pH: ");
+  lcd.print(ph);
+
   NetworkClient client = server.accept();
 
   if (client) {
@@ -96,7 +112,6 @@ void loop()
         client.println();
       }
     }
-
     client.stop();
     Serial.println("Client disconnected.");
   }
