@@ -60,15 +60,16 @@ void setup()
 
 void loop()
 {
-  float humidity, temperature;
-  float ph = read_ph(PIN_NUMBER_PH_SENSOR);
+  float humidity, ph = -1, temperature;
   u8 resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
 
   u64 currentTime = millis();
   if (lastRecordedTime - currentTime >= 5000) {
+    ph = read_ph(PIN_NUMBER_PH_SENSOR);
     lastRecordedTime = currentTime;
-    Serial.printf("DHT11 read result code: %hhu\t\t", resultValue);
-    Serial.printf("Temperature: %.2f\t\t", temperature);
+
+    Serial.printf("DHT11 read result code: %hhu\t", resultValue);
+    Serial.printf("Temperature: %.2f\t", temperature);
     Serial.printf("Humidity: %.2f\n\n", humidity);
 
     lcd.clear();
@@ -109,6 +110,10 @@ void loop()
 
     if (client.connected() && client.available()) {
       if (firstLine.startsWith("GET /measurements")) {
+          if (ph == -1) {
+            ph = read_ph(PIN_NUMBER_PH_SENSOR);
+          }
+
           client.println("HTTP/1.1 200 OK");
           client.println("Content-type:application/json");
           client.println();

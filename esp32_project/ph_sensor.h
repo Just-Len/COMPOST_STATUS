@@ -37,9 +37,9 @@ float read_ph(u8 pinNumber)
   float ph = to_ph(voltage);
 
 #if DEBUG
-  Serial.printf("PH sensor raw output value: %d\t\t", sumValue);
-  Serial.printf("Voltage: %f\t\t", voltage);
-  Serial.printf("pH: %f\n\n", ph);
+  Serial.printf("PH sensor raw output value: %d\t", sumValue);
+  Serial.printf("Voltage: %f\t", voltage);
+  Serial.printf("pH: %f\n", ph);
 #endif
 
   return ph;
