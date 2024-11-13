@@ -32,7 +32,7 @@ void setup()
   int attempts = 3;
   do {
     attempts -= 1;
-    if (attempts = 0) {
+    if (attempts == 0) {
       log_e("Access Point creation failed.\n");
       while (true) { }
     }

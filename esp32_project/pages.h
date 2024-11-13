@@ -27,7 +27,12 @@ const char *index_page = R"(
       <button onclick=\"updateChart('Acidez')\">Acidez</button>
       <button onclick=\"updateChart('Temperatura')\">Temperatura</button>
     </div>
-    
+    <h3>Últimas Mediciones</h3>
+    <p>Humedad: <span id="humidityValue">Cargando medicion</span></p>
+    <p>Acidez (pH): <span id="phValue">Cargando medicion</span></p>
+    <p>Temperatura: <span id="temperatureValue">Cargando medicion</span></p>
+    <button type="button" onclick=\"loadSensorData()\">Cargar Datos del Sensor</button>
+
     <div class="form-container">
       <h3>Agregar Nueva Medicción</h3>
       <form id="addForm">
@@ -41,7 +46,6 @@ const char *index_page = R"(
     </div>
     <br>
     <button onclick=\"downloadCSV()\">Descargar CSV</button>
-
   </div>
   <div class="table-container">
     <table class="styled_table" style="margin-top: 148PX;">
@@ -50,22 +54,16 @@ const char *index_page = R"(
       </thead>
       <tbody id="dataBody"></tbody>
     </table>
-
   </div>
   <div style="margin-top: 148px;"><svg id="lineChart" width="600" height="300"></svg></div>
-
   <div class="tooltip" id="tooltip"></div>
-
   <script>
     let csvData = [];
     const tooltip = document.getElementById('tooltip');
-
     document.getElementById('fileInput').addEventListener('change', handleFile, false);
-
     function handleFile(event) {
       const file = event.target.files[0];
       const reader = new FileReader();
-
       reader.onload = function(e) {
         const rows = e.target.result.split('\n').filter(row => row.trim() !== '');
         csvData = rows.slice(1).map(row => row.split(','));
@@ -79,14 +77,11 @@ const char *index_page = R"(
         
         displayData(csvData);
       };
-
       reader.readAsText(file);
     }
-
     function displayData(data) {
       const tableBody = document.getElementById('dataBody');
       tableBody.innerHTML = '';
-
       data.forEach(row => {
         const tr = document.createElement('tr');
         row.forEach(cell => {
@@ -97,7 +92,6 @@ const char *index_page = R"(
         tableBody.appendChild(tr);
       });
     }
-
     function updateChart(column) {
       if (csvData.length === 0) return;
       const columnMap = { 'Humedad': 1, 'Acidez': 2, 'Temperatura': 3, 'Contenedor': 4 };
@@ -105,15 +99,12 @@ const char *index_page = R"(
       const labels = csvData.map(row => row[0]);
       const data = csvData.map(row => parseFloat(row[columnIndex]));
       const contenedorData = csvData.map(row => row[4]); 
-
       const svg = document.getElementById('lineChart');
       svg.innerHTML = '';
-
       const maxVal = Math.max(...data);
       const minVal = Math.min(...data);
       const scaleX = (svg.width.baseVal.value - 100) / (data.length - 1);
       const scaleY = (svg.height.baseVal.value - 100) / (maxVal - minVal);
-
       const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
       xAxis.setAttribute("x1", 50);
       xAxis.setAttribute("y1", 250);
@@ -121,7 +112,6 @@ const char *index_page = R"(
       xAxis.setAttribute("y2", 250);
       xAxis.setAttribute("stroke", "black");
       svg.appendChild(xAxis);
-
       const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
       yAxis.setAttribute("x1", 50);
       yAxis.setAttribute("y1", 50);
@@ -129,7 +119,6 @@ const char *index_page = R"(
       yAxis.setAttribute("y2", 250);
       yAxis.setAttribute("stroke", "black");
       svg.appendChild(yAxis);
-
       labels.forEach((label, i) => {
         const x = 50 + i * scaleX;
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -140,7 +129,6 @@ const char *index_page = R"(
         text.textContent = label;
         svg.appendChild(text);
       });
-
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       let pathData = '';
       data.forEach((value, i) => {
@@ -151,14 +139,12 @@ const char *index_page = R"(
         } else {
           pathData += ` L${x},${y}`;
         }
-
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         circle.setAttribute("r", 4);
         circle.setAttribute("fill", "#83072D");
         svg.appendChild(circle);
-
         const textData = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textData.setAttribute("x", x);
         textData.setAttribute("y", y - 10); 
@@ -166,43 +152,36 @@ const char *index_page = R"(
         textData.setAttribute("text-anchor", "middle");
         textData.textContent = value.toFixed(2);
         svg.appendChild(textData);
-
         circle.addEventListener('mouseover', function(event) {
           tooltip.style.display = 'block';
           tooltip.textContent = `${column}: ${value.toFixed(2)} (Fecha: ${labels[i]}) - Contenedor: ${contenedorData[i]}`;
           tooltip.style.left = `${event.pageX + 10}px`;
           tooltip.style.top = `${event.pageY - 30}px`;
         });
-
         circle.addEventListener('mouseout', function() {
           tooltip.style.display = 'none';
         });
       });
-
       path.setAttribute("d", pathData);
       path.setAttribute("stroke", "#83072D");
       path.setAttribute("fill", "none");
       svg.appendChild(path);
     }
-
     function addNewMeasurement() {
       const fecha = document.getElementById('newFecha').value;
       let humedad = document.getElementById('newHumedad').value;
       const acidez = document.getElementById('newAcidez').value;
       const temperatura = document.getElementById('newTemperatura').value;
       const contenedor = document.getElementById('newContenedor').value;
-
       if (!fecha || !humedad || !acidez || !temperatura || !contenedor) {
         alert('Por favor complete todos los campos. O cheque que esten validos');
         return;
       }
-
       const newRow = [fecha, humedad+"%", acidez+"%", temperatura, contenedor];
       csvData.push(newRow);
       displayData(csvData);
       alert("Medición agregada correctamente.");
     }
-
     function downloadCSV() {
       const csvContent = "Fecha,Humedad,Acidez,Temperatura,Contenedor\n" + csvData.map(row => row.join(',')).join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -213,6 +192,34 @@ const char *index_page = R"(
         link.click();
       }
     }
+    function getMeasurements() {
+    fetch('/measurements')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('humidityValue').textContent = `${data.humidity}%`;
+        document.getElementById('phValue').textContent = data.pH;
+        document.getElementById('temperatureValue').textContent = `${data.temperature}°C`;
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    }
+    function loadSensorData() {
+  fetch('/measurements')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('newFecha').value = new Date().toLocaleDateString('es-ES');
+      document.getElementById('newHumedad').value = data.humidity || '';
+      document.getElementById('newAcidez').value = data.pH || '';
+      document.getElementById('newTemperatura').value = data.temperature || '';
+      document.getElementById('newContenedor').value = ''; 
+    })
+    .catch(error => {
+      alert('Error al cargar los datos del sensor.');
+      console.error('Error fetching data:', error);
+    });
+}
+
+    setInterval(getMeasurements, 5000);
+    window.onload = getMeasurements;
   </script>
 </body>
 </html>
