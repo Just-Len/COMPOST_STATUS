@@ -1,12 +1,12 @@
 #include <Arduino.h>
 
-static const int DELAY_MS = 500;
-static const int ERROR_CHECKSUM = 254;
-static const int ERROR_TIMEOUT = 253;
-static const int TIMEOUT_DURATION = 1000;
+static const u16 DELAY_MS = 500;
+static const u8  ERROR_CHECKSUM = 254;
+static const u8  ERROR_TIMEOUT = 253;
+static const u16 TIMEOUT_DURATION = 1000;
 
-static void startSignal(int);
-static byte readByte(int);
+static void startSignal(u8);
+static u8 readByte(u8);
 
 /**
  * @param data: An array of bytes where the raw sensor data will be stored.
@@ -15,11 +15,11 @@ static byte readByte(int);
  *          Returns DHT11::ERROR_TIMEOUT if the sensor does not respond or communication times out.
  *          Returns DHT11::ERROR_CHECKSUM if the data is read but the checksum does not match.
  */
-int readRawData(int pinNumber, byte data[5])
+u8 readRawData(u8 pinNumber, u8 data[5])
 {
   delay(DELAY_MS);
   startSignal(pinNumber);
-  unsigned long timeout_start = millis();
+  u64 timeout_start = millis();
 
   while (digitalRead(pinNumber) == HIGH)
   {
@@ -35,7 +35,7 @@ int readRawData(int pinNumber, byte data[5])
     if (digitalRead(pinNumber) == HIGH)
     {
       delayMicroseconds(80);
-      for (int i = 0; i < 5; i++)
+      for (u8 i = 0; i < 5; i++)
       {
         data[i] = readByte(pinNumber);
         if (data[i] == ERROR_TIMEOUT)
@@ -57,11 +57,11 @@ int readRawData(int pinNumber, byte data[5])
   return ERROR_TIMEOUT;
 }
 
-static byte readByte(int pinNumber)
+static u8 readByte(u8 pinNumber)
 {
-  byte value = 0;
+  u8 value = 0;
 
-  for (int i = 0; i < 8; i++)
+  for (u8 i = 0; i < 8; i++)
   {
     while (digitalRead(pinNumber) == LOW);
 
@@ -81,7 +81,7 @@ static byte readByte(int pinNumber)
  * This involves setting the data pin low for a specific duration, then high,
  * and finally setting it to input mode to read the data.
  */
-static void startSignal(int pinNumber)
+static void startSignal(u8 pinNumber)
 {
   pinMode(pinNumber, OUTPUT);
   digitalWrite(pinNumber, LOW);
@@ -92,16 +92,14 @@ static void startSignal(int pinNumber)
 }
 
 /**
- * @param temperature: Reference to a variable where the temperature value will be stored.
- * @param humidity: Reference to a variable where the humidity value will be stored.
  * @return: An integer representing the status of the read operation.
  *          Returns 0 if the reading is successful, DHT11::ERROR_TIMEOUT if a timeout occurs,
  *          or DHT11::ERROR_CHECKSUM if a checksum error occurs.
  */
-int readTemperatureHumidity(int pinNumber, int &temperature, int &humidity)
+u8 readTemperatureHumidity(u8 pinNumber, i32 &temperature, i32 &humidity)
 {
-  byte data[5];
-  int error = readRawData(pinNumber, data);
+  u8 data[5];
+  u8 error = readRawData(pinNumber, data);
   if (error != 0)
   {
     return error;

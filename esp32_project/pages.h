@@ -10,8 +10,7 @@ const char *index_page = R"_(
     .styled_table thead tr { background-color: #83072D; color: #ffffff; }
     .styled_table th, .styled_table td { padding: 12px 15px; }
     .buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tooltip { position: absolute; background-color: rgba(0, 0, 0, 0.7);
-       color: white; padding: 8px; border-radius: 4px; pointer-events: none; display: none; }
+    .tooltip { position: absolute; background-color: rgba(0, 0, 0, 0.7); color: white; padding: 8px; border-radius: 4px; pointer-events: none; display: none; }
       button{padding: 10px 20px;background-color: #83072D;color: white;border: none;border-radius: 4px;cursor: pointer;}
       button:hover {background-color: #661c2b;}
     .form-container { margin-top: 20px; }

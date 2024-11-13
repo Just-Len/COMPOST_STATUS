@@ -3,22 +3,29 @@
 #include <WiFiAP.h>
 #include <LiquidCrystal_I2C.h>
 
+typedef uint8_t   u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+typedef int32_t  i32;
+
 // https://docs.arduino.cc/built-in-examples/basics/ReadAnalogVoltage/
 // https://www.arduino.cc/reference/tr/language/functions/analog-io/analogread/
 // The max value that the 'analogRead' function can return
-const int ANALOG_READ_MAX_VALUE = 1023;
+const u16 ANALOG_READ_MAX_VALUE = 1023;
 
 #define DEBUG 1
 #include "dht11.h"
 #include "ph_sensor.h"
 #include "pages.h"
 
-const int BAUD_RATE = 115200;
-const int PIN_NUMBER_LED_BUILTIN = 2;
-const int PIN_NUMBER_PH_SENSOR = 35;
-const int PIN_NUMBER_DHT11 = 26;
-const int LCD_COLUMNS = 16;
-const int LCD_ROWS = 2;
+const u32 BAUD_RATE = 115200;
+const u8  PIN_NUMBER_LED_BUILTIN = 2;
+const u8  PIN_NUMBER_PH_SENSOR = 35;
+const u8  PIN_NUMBER_DHT11 = 26;
+const u8  LCD_COLUMNS = 16;
+const u8  LCD_ROWS = 2;
 
 const String NETWORK_SSID = "Sensores Compostera";
 LiquidCrystal_I2C lcd(39, LCD_COLUMNS, LCD_ROWS);
@@ -35,7 +42,7 @@ void setup()
 
   Serial.println("Attempting to create Access Point.");
 
-  int attempts = 3;
+  u8 attempts = 3;
   do {
     attempts -= 1;
     if (attempts == 0) {
@@ -43,16 +50,21 @@ void setup()
       while (true) { }
     }
 
-  } while (!WiFi.softAP(NETWORK_SSID, emptyString, true, true, 2));
+  // SSID, password, channel, hide SSID
+  } while (!WiFi.softAP(NETWORK_SSID, emptyString, 1, true));
 
   Serial.println("Access Point creation succeeded.");
 }
 
 void loop()
 {
-  int humidity, temperature;
+  i32 humidity, temperature;
   float ph = read_ph(PIN_NUMBER_PH_SENSOR);
-  int resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
+  u8 resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
+
+  Serial.printf("DHT11 read result code: %lld\t\t", resultValue);
+  Serial.printf("Temperature: %d\t\t", temperature);
+  Serial.printf("Humidity: %d\n\n", humidity);
 
   lcd.clear();
   lcd.setCursor(0,0);

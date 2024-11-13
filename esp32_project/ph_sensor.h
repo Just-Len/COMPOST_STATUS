@@ -10,23 +10,23 @@
 // Ambos valores deben obtenerse despues de haber ajustado
 // manualmente la perilla o potenciometro con el buffer de pH 7
 // hasta que el voltaje fuese de 2.5
-static const int LINE_SLOPE = 1;
+static const float LINE_SLOPE = 1;
 
-static const int MEASURE_COUNT = 10;
-static const int MEASURE_INTERVAL_MS = 20;
-static const int LOOP_INTERVAL_MS = 1000;
+static const u8  MEASURE_COUNT = 10;
+static const u8  MEASURE_INTERVAL_MS = 20;
+static const u16 LOOP_INTERVAL_MS = 1000;
 
 static const float INPUT_VOLTAGE = 5;
 static const float MEDIUM_VOLTAGE = 2.5;
-static const int   NEUTRAL_PH = 7;
+static const u8    NEUTRAL_PH = 7;
 
-float to_voltage(int value);
+float to_voltage(u32 value);
 float to_ph(float voltage);
 
-float read_ph(int pinNumber)
+float read_ph(u8 pinNumber)
 {
-  int sumValue = 0;
-  for(int i = 0; i < MEASURE_COUNT; i++) {
+  u32 sumValue = 0;
+  for(u8 i = 0; i < MEASURE_COUNT; i++) {
     sumValue += analogRead(pinNumber);
     delay(MEASURE_INTERVAL_MS);
   }
@@ -37,15 +37,15 @@ float read_ph(int pinNumber)
   float ph = to_ph(voltage);
 
 #if DEBUG
-  Serial.printf("Raw output value: %d", sumValue);
-  Serial.printf("Voltage: %f\n", voltage);
-  Serial.printf("pH: %f\n", ph);
+  Serial.printf("PH sensor raw output value: %d\t\t", sumValue);
+  Serial.printf("Voltage: %f\t\t", voltage);
+  Serial.printf("pH: %f\n\n", ph);
 #endif
 
   return ph;
 }
 
-float to_voltage(int value)
+float to_voltage(u32 value)
 {
   return value * (INPUT_VOLTAGE / ANALOG_READ_MAX_VALUE);
 }
