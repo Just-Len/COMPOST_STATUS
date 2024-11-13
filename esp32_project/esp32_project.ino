@@ -74,15 +74,20 @@ void loop()
 
     lcd.clear();
     lcd.setCursor(0,0);
+
+    int dataForLcd = static_cast<int>(humidity);
     lcd.print("Hum: ");
-    lcd.print(humidity);
-    lcd.print("Temp: ");
-    lcd.print(temperature);
-    lcd.print ("°C");
+    lcd.print(dataForLcd);
+
+    lcd.print(" pH: ");
+    lcd.print(ph);
 
     lcd.setCursor(0,1);
-    lcd.print("pH: ");
-    lcd.print(ph);
+
+    dataForLcd = static_cast<int>(temperature);
+    lcd.print("Temp: ");
+    lcd.print(dataForLcd);
+    lcd.print("°C");
   }
 
   NetworkClient client = server.accept();
