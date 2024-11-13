@@ -28,9 +28,10 @@ const u8  LCD_COLUMNS = 16;
 const u8  LCD_ROWS = 2;
 
 const String NETWORK_SSID = "Sensores Compostera";
-LiquidCrystal_I2C lcd(39, LCD_COLUMNS, LCD_ROWS);
 
+LiquidCrystal_I2C lcd(39, LCD_COLUMNS, LCD_ROWS);
 NetworkServer server(80);
+u64 lastRecordedTime = millis();
 
 void setup()
 {
@@ -54,6 +55,7 @@ void setup()
   } while (!WiFi.softAP(NETWORK_SSID, emptyString, 1, false));
 
   Serial.println("Access Point creation succeeded.");
+  server.begin();
 }
 
 void loop()
@@ -62,21 +64,25 @@ void loop()
   float ph = read_ph(PIN_NUMBER_PH_SENSOR);
   u8 resultValue = readTemperatureHumidity(PIN_NUMBER_DHT11, temperature, humidity);
 
-  Serial.printf("DHT11 read result code: %lld\t\t", resultValue);
-  Serial.printf("Temperature: %.2f\t\t", temperature);
-  Serial.printf("Humidity: %.2f\n\n", humidity);
+  u64 currentTime = millis();
+  if (lastRecordedTime - currentTime >= 5000) {
+    lastRecordedTime = currentTime;
+    Serial.printf("DHT11 read result code: %hhu\t\t", resultValue);
+    Serial.printf("Temperature: %.2f\t\t", temperature);
+    Serial.printf("Humidity: %.2f\n\n", humidity);
 
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Hum: ");
-  lcd.print(humidity);
-  lcd.print("Temp: ");
-  lcd.print(temperature);
-  lcd.print ("°C");
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Hum: ");
+    lcd.print(humidity);
+    lcd.print("Temp: ");
+    lcd.print(temperature);
+    lcd.print ("°C");
 
-  lcd.setCursor(0,1);
-  lcd.print("pH: ");
-  lcd.print(ph);
+    lcd.setCursor(0,1);
+    lcd.print("pH: ");
+    lcd.print(ph);
+  }
 
   NetworkClient client = server.accept();
 
