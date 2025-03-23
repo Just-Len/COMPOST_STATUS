@@ -1,6 +1,19 @@
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then((registration) => {
+                console.log('Service Worker registrado con éxito:', registration.scope);
+            })
+            .catch((error) => {
+                console.error('Error al registrar el Service Worker:', error);
+            });
+    });
+}
+
 let csvData = [];
 const tooltip = document.getElementById('tooltip');
 document.getElementById('fileInput').addEventListener('change', handleFile, false);
+
 
 function handleFile(event) {
     const file = event.target.files[0];
@@ -136,6 +149,7 @@ function downloadCSV() {
         link.click();
     }
 }
+/*
 function getMeasurements() {
     fetch('/measurements')
         .then(response => response.json())
@@ -145,7 +159,7 @@ function getMeasurements() {
             document.getElementById('temperatureValue').textContent = `${data.temperature}°C`;
         })
         .catch(error => console.error('Error fetching data:', error));
-}
+}*/
 function loadSensorData() {
     fetch('/measurements')
         .then(response => response.json())
@@ -165,6 +179,8 @@ function loadSensorData() {
 function elementValue(name) {
     return document.getElementById(name).value;
 }
-
+/*
 setInterval(getMeasurements, 5000);
 window.onload = getMeasurements;
+*/
+
