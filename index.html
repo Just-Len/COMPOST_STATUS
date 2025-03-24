@@ -3,58 +3,68 @@
     <head>
         <meta charset="UTF-8">
         <title>Sensores Compostera</title>
-        <style>
-            body { font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; background-color:  aliceblue; display: flex; flex-direction: row; gap: 20px; }
-            .styled_table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; }
-            .styled_table thead tr { background-color: #83072D; color: #ffffff; }
-            .styled_table th, .styled_table td { padding: 12px 15px; }
-            .buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-            .tooltip { position: absolute; background-color: rgba(0, 0, 0, 0.7); color: white; padding: 8px; border-radius: 4px; pointer-events: none; display: none; }
-            button { padding: 10px 20px; background-color: #83072D; color: white; border: none; border-radius: 4px;cursor: pointer; }
-            button:hover { background-color: #661c2b; }
-            .form-container { margin-top: 20px; }
-        </style>
+        <link rel="stylesheet" href="style.css">
     </head>
-    <body>
-    <div>
-        <h2>Estadísticas Compostera</h2>
-        <input type="file" id="fileInput" accept=".csv">
-        <h3>Graficas</h3>
-        <div class="buttons">
-        <button onclick="updateChart('Humedad')">Humedad</button>
-        <button onclick="updateChart('Acidez')">Acidez</button>
-        <button onclick="updateChart('Temperatura')">Temperatura</button>
-        </div>
-        <h3>Últimas Mediciones</h3>
-        <p>Humedad: <span id="humidityValue">Cargando medicion</span></p>
-        <p>Acidez (pH): <span id="phValue">Cargando medicion</span></p>
-        <p>Temperatura: <span id="temperatureValue">Cargando medicion</span></p>
-        <button type="button" onclick="loadSensorData()">Cargar Datos del Sensor</button>
 
-        <div class="form-container">
-        <h3>Agregar Nueva Medicción</h3>
-        <form id="addForm">
-            <label>Fecha (DD-MM-YYYY): <input type="text" id="newFecha"></label><br><br>
-            <label>Humedad: <input type="number" id="newHumedad"></label><br><br>
-            <label>Acidez: <input type="number" id="newAcidez"></label><br><br>
-            <label>Temperatura: <input type="number" id="newTemperatura"></label><br><br>
-            <label>Contenedor: <input type="number" id="newContenedor"></label><br><br>
-            <button type="button" onclick="addNewMeasurement()">Agregar</button>
-        </form>
+    <body>
+        <div>
+            <h2>Estadísticas Compostera</h2>
+            <input type="file" id="fileInput" accept=".csv">
+            <h3>Graficas</h3>
+            <div class="buttons">
+                <button onclick="updateChart('Humedad')">Humedad</button>
+                <button onclick="updateChart('Acidez')">Acidez</button>
+                <button onclick="updateChart('Temperatura')">Temperatura</button>
+            </div>
+            <h3>Últimas Mediciones</h3>
+            <p>Humedad: <span id="humidityValue">Cargando medicion</span></p>
+            <p>Acidez (pH): <span id="phValue">Cargando medicion</span></p>
+            <p>Temperatura: <span id="temperatureValue">Cargando medicion</span></p>
+
+            <button type="button" onclick="loadSensorData()">Cargar Datos del Sensor</button>
+
+            <div class="form-container">
+                <h3>Agregar Nueva Medición</h3>
+                <form id="addForm">
+                    <label for="newFecha">Fecha (DD-MM-YYYY):</label>
+                    <input type="text" id="newFecha">
+                    <label for="newHumedad">Humedad:</label>
+                    <input type="number" id="newHumedad">
+                    <label for="newAcidez">Acidez:</label>
+                    <input type="number" id="newAcidez">
+                    <label for="newTemperatura">Temperatura:</label>
+                    <input type="number" id="newTemperatura">
+                    <label for="newContenedor">Contenedor:</label>
+                    <input type="number" id="newContenedor">
+
+                    <button type="button" onclick="addNewMeasurement()">Agregar</button>
+                    <button onclick="downloadCSV()">Descargar CSV</button>
+                </form>
+            </div>
+            <br>
         </div>
-        <br>
-        <button onclick="downloadCSV()">Descargar CSV</button>
-    </div>
-    <div class="table-container">
-        <table class="styled_table" style="margin-top: 148px;">
-        <thead>
-            <tr style="border-radius: 40px;"><th>Fecha</th><th>Humedad</th><th>Acidez</th><th>Temperatura</th><th>Contenedor</th></tr>
-        </thead>
-        <tbody id="dataBody"></tbody>
-        </table>
-    </div>
-    <div style="margin-top: 148px;"><svg id="lineChart" width="600" height="300"></svg></div>
-    <div class="tooltip" id="tooltip"></div>
-   <script src="main.js"></script>
+
+        <div class="table-container">
+            <table class="styled_table" style="margin-top: 148px;">
+                <thead>
+                    <tr style="border-radius: 40px;">
+                        <th>Fecha</th>
+                        <th>Humedad</th>
+                        <th>Acidez</th>
+                        <th>Temperatura</th>
+                        <th>Contenedor</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 148px;">
+            <svg id="lineChart" width="600" height="300"></svg>
+        </div>
+
+        <div class="tooltip" id="tooltip"></div>
+
+        <script src="main.js"></script>
     </body>
 </html>

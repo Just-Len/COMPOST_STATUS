@@ -1,0 +1,25 @@
+body { font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; background-color:  aliceblue; display: flex; flex-direction: row; gap: 20px; }
+
+button { font-family: sans-serif; padding: 10px 20px; background-color: #83072D; color: white; border: none; border-radius: 4px;cursor: pointer; }
+
+button:hover { background-color: #661c2b; }
+
+input { font-size: 1.2rem; }
+
+#addForm { align-items: baseline; display: grid; column-gap: 1em; grid-template-columns: max-content auto; row-gap: 1em; }
+
+#addForm > label { text-align: end; }
+
+#addForm > button { grid-column-end: span 2; }
+
+.styled_table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; }
+
+.styled_table thead tr { background-color: #83072D; color: #ffffff; }
+
+.styled_table th, .styled_table td { padding: 12px 15px; }
+
+.buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+
+.tooltip { position: absolute; background-color: rgba(0, 0, 0, 0.7); color: white; padding: 8px; border-radius: 4px; pointer-events: none; display: none; }
+
+.form-container { margin-top: 20px; }
