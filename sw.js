@@ -1,38 +1,54 @@
-const cacheName = 'composteras-v1'
-const cachePaths = [
-    '/',
-    'index.html',
-    'main.js'
-
+const CACHE_NAME = "composteras-v1"
+const CACHE_PATHS = [
+    "/",
+    "index.html",
+    "main.js",
+    "style.css"
 ]
-self.addEventListener('install', (event)=>{
-    event.waitUntil(
-        caches.open(cacheName)
-        .then((cache)=>{
-            console.log("Service worker activated");
-            return cache.addAll(cachePaths)
+
+self.addEventListener("install", event => {
+    const promise = caches
+        .open(CACHE_NAME)
+        .then(cache => {
+            console.log("Service worker activated")
+            return cache.addAll(CACHE_PATHS)
         })
-    )
+    event.waitUntil(promise)
 })
-self.addEventListener('fetch', (event)=>{
-    event.respondWith(
-        caches.match(event.request)
-        .then((response)=>{
-            return response || fetch(event.request)
+
+self.addEventListener("fetch", event => {
+    const promise = caches
+        .match(event.request)
+        .then(response => {
+            const url = event.request.url
+            console.log(`Resource at ${url} requested`)
+            if (response) {
+                console.log("Cache hit!")
+                return response
+            }
+
+            console.log("Cache miss :(")
+            return fetch(event.request)
         })
-    )
+
+    event.respondWith(promise)
 })
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        console.log('Eliminando caché antigua:', cache);
-                        return caches.delete(cache);
-                    }
-                })
-            );
+
+self.addEventListener("activate", (event) => {
+    const promise = caches
+        .keys()
+        .then(cacheNames => {
+            const promises = cacheNames.map(name => {
+                if (name !== CACHE_NAME) {
+                    console.log("Deleting old cache: ", name)
+                    return caches.delete(name);
+                }
+
+                return Promise.resolve(false)
+            })
+
+            return Promise.all(promises);
         })
-    );
-});
+
+    event.waitUntil(promise)
+})
